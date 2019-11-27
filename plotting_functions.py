@@ -70,7 +70,7 @@ def make_plot(df: pd.DataFrame, labels, nrows=2, show=True, title=None, fig_kwar
 
     ncols = len(labels) // nrows + int(bool(len(labels) % nrows))
 
-    fig, axes = plt.subplots(nrows, ncols, **fig_kwargs)
+    fig, axes = plt.subplots(nrows, ncols, sharex='all', sharey='row', **fig_kwargs)
     axes = axes.reshape(nrows, -1)  # make sure the axes array is 2D
 
     for i, label in enumerate(labels):
