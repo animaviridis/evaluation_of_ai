@@ -37,8 +37,10 @@ def bar_subplot(counts, ax, gauss_params=None, bar_color='lightslategray', gauss
         x = np.linspace(0, keys.max(), 100)
         y = norm.pdf(x, *gauss_params)
         y = y / y.max() * counts.max()
+
+        mean, std = gauss_params
         ax.plot(x, y, zorder=5, color=gauss_color, lw=3, label='Distribution')
-        ax.axvline(gauss_params[0], color=gauss_color, linestyle='--', label='Mean')
+        ax.axvline(mean, color=gauss_color, linestyle='--', label=f'Mean: {mean:.1f}')
 
     ax.legend(fancybox=True, framealpha=0.5)
 
@@ -69,9 +71,10 @@ def make_plot(df: pd.DataFrame, labels, nrows=2, show=True, title=None, fig_kwar
     ncols = len(labels) // nrows + int(bool(len(labels) % nrows))
 
     fig, axes = plt.subplots(nrows, ncols, **fig_kwargs)
+    axes = axes.reshape(nrows, -1)  # make sure the axes array is 2D
 
     for i, label in enumerate(labels):
-        make_subplot(df, label, ax=axes[i//nrows, i % nrows], show=False, **kwargs)
+        make_subplot(df, label, ax=axes[i//ncols, i % ncols], show=False, **kwargs)
 
     plt.suptitle(title or "", fontsize=16)
 
