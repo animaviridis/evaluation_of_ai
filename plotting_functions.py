@@ -16,7 +16,7 @@ def pie_plot(df: pd.DataFrame, label, ax=None, show=True, **kwargs):
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-    ax.legend(pie[0], aux.break_labels(counts.keys()), fontsize=9,
+    ax.legend(pie[0], aux.break_labels(counts.keys()), fontsize=10,
               bbox_transform=ax.transAxes, bbox_to_anchor=(1, 0.5), loc="center left")
 
     ax.set_title(aux.break_label(counts.name, ['a ', 'do']))
@@ -34,6 +34,7 @@ def pie_subplots(df: pd.DataFrame, labels, nrows=2, show=True, title=None, fig_k
         pie_plot(df, label, ax=axes[i//nrows, i % nrows], show=False)
 
     plt.suptitle(title or "", fontsize=16)
+
     if show:
         plt.show()
 
