@@ -40,7 +40,7 @@ def bar_subplot(counts, ax, gauss_params=None, bar_color='lightslategray', gauss
 
         mean, std = gauss_params
         ax.plot(x, y, zorder=5, color=gauss_color, lw=3, label='Distribution')
-        ax.axvline(mean, color=gauss_color, linestyle='--', label=f'Mean: {mean:.1f}')
+        ax.axvline(mean, color=gauss_color, linestyle='--', label=f'Mean ({mean:.1f} +/- {std:.1f})')
 
     ax.legend(fancybox=True, framealpha=0.5)
 
