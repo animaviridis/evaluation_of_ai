@@ -2,12 +2,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from scipy.stats import norm
+from collections.abc import Iterable
 
 import aux_functions as aux
 
 
 def count(df: pd.DataFrame, label):
-    return df[label].value_counts()
+    values = df[label]
+    if isinstance(values[0], str):
+        values_split = []
+        for value in values:
+            values_split.extend(value.split(';'))
+        values = pd.Series(values_split, name=label)
+
+    return values.value_counts()
 
 
 def gauss(df: pd.DataFrame, label):
@@ -49,7 +57,7 @@ PLOTS_REGISTRY = {'pie': pie_subplot,
                   'bar': bar_subplot}
 
 
-def make_subplot(df, label, type='pie', ax=None, show=True, break_labels=True, **kwargs):
+def make_subplot(df, label, kind='pie', ax=None, show=True, break_labels=True, **kwargs):
     if ax is None:
         fig, ax = plt.subplots()
 
@@ -57,7 +65,7 @@ def make_subplot(df, label, type='pie', ax=None, show=True, break_labels=True, *
     if counts.keys().is_numeric():
         kwargs['gauss_params'] = gauss(df, label)
 
-    PLOTS_REGISTRY[type](counts, ax, **kwargs)
+    PLOTS_REGISTRY[kind](counts, ax, **kwargs)
 
     if show:
         plt.show()
@@ -65,16 +73,28 @@ def make_subplot(df, label, type='pie', ax=None, show=True, break_labels=True, *
     ax.set_title(aux.break_label(counts.name, ['a ', 'do']) if break_labels else counts.name)
 
 
-def make_plot(df: pd.DataFrame, labels, nrows=2, show=True, title=None, fig_kwargs=None, **kwargs):
+def make_plot(df: pd.DataFrame, labels, nrows=2, show=False, title=None, fig_kwargs=None, kind='pie', **kwargs):
     fig_kwargs = fig_kwargs or {}
 
-    ncols = len(labels) // nrows + int(bool(len(labels) % nrows))
+    n = len(labels)
+    ncols = n // nrows + int(bool(n % nrows))
 
-    fig, axes = plt.subplots(nrows, ncols, sharex='all', sharey='row', **fig_kwargs)
-    axes = axes.reshape(nrows, -1)  # make sure the axes array is 2D
+    same_kind = False
+    if isinstance(kind, str):
+        kind = n * [kind]
+        same_kind = True
+    elif not isinstance(kind, Iterable) or len(kind) != n:
+        raise ValueError(f"'kind' should be a string or an iterable of {n} strings")
+
+    fig, axes = plt.subplots(nrows, ncols, sharex='all', sharey='row' if same_kind else 'none', **fig_kwargs)
+
+    # make sure the axes array is 2D
+    if n < 2:
+        axes = np.array([axes])
+    axes = axes.reshape(nrows, -1)
 
     for i, label in enumerate(labels):
-        make_subplot(df, label, ax=axes[i//ncols, i % ncols], show=False, **kwargs)
+        make_subplot(df, label, ax=axes[i//ncols, i % ncols], show=False, kind=kind[i], **kwargs)
 
     plt.suptitle(title or "", fontsize=16)
 
