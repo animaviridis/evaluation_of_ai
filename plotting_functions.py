@@ -37,20 +37,21 @@ def pie_subplot(counts, ax, **kwargs):
               bbox_transform=ax.transAxes, bbox_to_anchor=(1, 0.5), loc="center left")
 
 
-def bar_subplot(counts, ax, gauss_params=None, bar_color='lightslategray', gauss_color='crimson', **kwargs):
+def bar_subplot(counts, ax, gauss_params=None, bar_color=None, gauss_color='crimson', **kwargs):
     keys = counts.keys()
 
     if isinstance(keys[0], str):
-        cmap = plt.get_cmap('tab10')
-        bar_color = [cmap(i) for i in range(len(keys))]
+        cmap = plt.get_cmap('tab20')
+        bar_color = bar_color or [cmap(i) for i in range(len(keys))]
+
         label = None
         ax.set_ylabel('Counts')
         plt.xticks(rotation=30, ha='right')
     else:
+        bar_color = bar_color or 'lightslategray'
         label = 'Counts'
 
     ax.bar(keys, counts, color=bar_color, **kwargs, label=label)
-
 
     if gauss_params is not None:
         x = np.linspace(0, keys.max(), 100)
