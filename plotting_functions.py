@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import norm
 from collections.abc import Iterable
+from typing import Union
 
 import aux_functions as aux
 
@@ -70,11 +71,15 @@ PLOTS_REGISTRY = {'pie': pie_subplot,
                   'bar': bar_subplot}
 
 
-def make_subplot(df, label, kind='pie', ax=None, show=True, break_labels=True, **kwargs):
+def make_subplot(df, label, kind='pie', counted=False, ax=None, show=True, break_labels=True, **kwargs):
     if ax is None:
         fig, ax = plt.subplots()
 
-    counts = count(df, label)
+    if counted:
+        counts = df[label]
+    else:
+        counts = count(df, label)
+
     if counts.keys().is_numeric():
         kwargs['gauss_params'] = gauss(df, label)
 
@@ -86,10 +91,19 @@ def make_subplot(df, label, kind='pie', ax=None, show=True, break_labels=True, *
     ax.set_title(aux.break_label(counts.name, ['a ', 'do']) if break_labels else counts.name)
 
 
-def make_plot(df: pd.DataFrame, labels, nrows=2, show=False, title=None, fig_kwargs=None, kind='pie', **kwargs):
+def make_plot(df: Union[pd.DataFrame, pd.Series], labels=None, name=None, nrows=2, show=False, title=None,
+              fig_kwargs=None, kind='pie', **kwargs):
     fig_kwargs = fig_kwargs or {}
 
+    if isinstance(df, pd.Series):
+        df = df.to_frame(df.name or name or '')
+    elif not isinstance(df, pd.DataFrame):
+        raise TypeError(f"Data should be in the form of pandas DataFrame or Series (got {type(df)})")
+
+    labels = labels or df.keys()
+
     n = len(labels)
+    nrows = min(n, nrows)
     ncols = n // nrows + int(bool(n % nrows))
 
     same_kind = False
