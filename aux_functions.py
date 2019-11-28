@@ -31,8 +31,8 @@ def prepare_data(fname=None):
     keys['tasks'] = k[10:18]
     keys['clustering'] = k[18:20]
     keys['yippy'] = k[20:23] + k[25:26]
-    keys['remarks_yippy'] = k[23:25] + [k[26]]
-    keys['remarks_eval'] = [k[28]]
+    keys['remarks_yippy'] = k[23:25]
+    keys['remarks_eval'] = [k[26] + k[28]]
     keys['eval'] = [k[27]]
 
     return data, keys
@@ -45,7 +45,7 @@ def count_words(data: Union[pd.Series, pd.DataFrame], label=None):
     merged_text = "".join(data.dropna()).lower()
     words = nltk.tokenize.word_tokenize(merged_text)
 
-    stop_words = nltk.corpus.stopwords.words("english") + [',', '.', ';', ':', "'"]
+    stop_words = nltk.corpus.stopwords.words("english") + [',', '.', ';', ':', "'", '(', ')', "n't"]
 
     ps = nltk.stem.PorterStemmer()
 

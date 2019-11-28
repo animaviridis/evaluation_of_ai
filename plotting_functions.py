@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import norm
 from collections.abc import Iterable
-from typing import Union
+from typing import Union, List
 
 import aux_functions as aux
 
@@ -103,14 +103,14 @@ def make_subplot(df, label, kind='pie', counted=False, ax=None, show=True, break
     ax.set_title(aux.break_label(counts.name, ['a ', 'do']) if break_labels else counts.name)
 
 
-def make_plot(df: Union[pd.DataFrame, pd.Series], labels=None, name=None, nrows=2, show=False, title=None,
-              fig_kwargs=None, kind='pie', **kwargs):
+def make_plot(df: Union[pd.DataFrame, List[pd.Series]], labels=None, nrows=2, show=False, title=None,
+              fig_kwargs=None, kind='pie', sharex=True, sharey=True, **kwargs):
     fig_kwargs = fig_kwargs or {}
 
-    if isinstance(df, pd.Series):
-        df = df.to_frame(df.name or name or '')
+    if isinstance(df, Iterable):
+        df = {dfi.name: dfi for dfi in df}
     elif not isinstance(df, pd.DataFrame):
-        raise TypeError(f"Data should be in the form of pandas DataFrame or Series (got {type(df)})")
+        raise TypeError(f"Data should be in the form of pandas DataFrame or list of Series (got {type(df)})")
 
     labels = labels or df.keys()
 
@@ -126,8 +126,8 @@ def make_plot(df: Union[pd.DataFrame, pd.Series], labels=None, name=None, nrows=
         raise ValueError(f"'kind' should be a string or an iterable of {n} strings")
 
     fig, axes = plt.subplots(nrows, ncols,
-                             sharex='all' if same_kind else 'none',
-                             sharey='row' if same_kind else 'none',
+                             sharex='all' if (same_kind and sharex) else 'none',
+                             sharey='row' if (same_kind and sharey) else 'none',
                              **fig_kwargs)
 
     # make sure the axes array is 2D
