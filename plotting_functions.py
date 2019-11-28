@@ -59,7 +59,7 @@ def bar_subplot(counts, ax, gauss_params=None, bar_color=None, gauss_color='crim
 
         label = None
         ax.set_ylabel('Counts')
-        plt.xticks(rotation=30, ha='right')
+        plt.setp(ax.get_xticklabels(), rotation=30, ha="right", rotation_mode="anchor")
     else:
         bar_color = bar_color or 'lightslategray'
         label = 'Counts'
