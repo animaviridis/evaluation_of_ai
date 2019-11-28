@@ -26,7 +26,8 @@ def gauss(df: pd.DataFrame, label):
 
 
 def pie_subplot(counts, ax, **kwargs):
-    pie = ax.pie(counts, **kwargs)
+    s = sum(counts)
+    pie = ax.pie(counts, autopct=lambda p: str(int(round(p*s/100))), **kwargs)
 
     # Shrink current axis by 20%
     box = ax.get_position()
@@ -39,7 +40,17 @@ def pie_subplot(counts, ax, **kwargs):
 def bar_subplot(counts, ax, gauss_params=None, bar_color='lightslategray', gauss_color='crimson', **kwargs):
     keys = counts.keys()
 
-    ax.bar(keys, counts, color=bar_color, **kwargs, label='Counts')
+    if isinstance(keys[0], str):
+        cmap = plt.get_cmap('tab10')
+        bar_color = [cmap(i) for i in range(len(keys))]
+        label = None
+        ax.set_ylabel('Counts')
+        plt.xticks(rotation=30, ha='right')
+    else:
+        label = 'Counts'
+
+    ax.bar(keys, counts, color=bar_color, **kwargs, label=label)
+
 
     if gauss_params is not None:
         x = np.linspace(0, keys.max(), 100)
@@ -50,7 +61,8 @@ def bar_subplot(counts, ax, gauss_params=None, bar_color='lightslategray', gauss
         ax.plot(x, y, zorder=5, color=gauss_color, lw=3, label='Distribution')
         ax.axvline(mean, color=gauss_color, linestyle='--', label=f'Mean ({mean:.1f} +/- {std:.1f})')
 
-    ax.legend(fancybox=True, framealpha=0.5)
+    if label is not None:
+        ax.legend(fancybox=True, framealpha=0.5)
 
 
 PLOTS_REGISTRY = {'pie': pie_subplot,
@@ -86,7 +98,10 @@ def make_plot(df: pd.DataFrame, labels, nrows=2, show=False, title=None, fig_kwa
     elif not isinstance(kind, Iterable) or len(kind) != n:
         raise ValueError(f"'kind' should be a string or an iterable of {n} strings")
 
-    fig, axes = plt.subplots(nrows, ncols, sharex='all', sharey='row' if same_kind else 'none', **fig_kwargs)
+    fig, axes = plt.subplots(nrows, ncols,
+                             sharex='all' if same_kind else 'none',
+                             sharey='row' if same_kind else 'none',
+                             **fig_kwargs)
 
     # make sure the axes array is 2D
     if n < 2:
