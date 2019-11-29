@@ -42,7 +42,7 @@ def count_words(data: Union[pd.Series, pd.DataFrame], label=None):
     if isinstance(data, pd.DataFrame):
         data = data[label]
 
-    merged_text = "".join(data.dropna()).lower()
+    merged_text = " ".join(data.dropna()).lower()
     words = nltk.tokenize.word_tokenize(merged_text)
 
     stop_words = nltk.corpus.stopwords.words("english") + [',', '.', ';', ':', "'", '(', ')', "n't"]
